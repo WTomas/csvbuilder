@@ -1,0 +1,12 @@
+{
+    "moduleFileExtensions": [
+        "js",
+        "ts"
+    ],
+    "rootDir": ".",
+    "testRegex": ".spec.ts$",
+    "testEnvironment": "node",
+    "transform": {
+        "^.+\\.(t|j)s$": "ts-jest"
+    }
+}

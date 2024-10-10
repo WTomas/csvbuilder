@@ -1,0 +1,16 @@
+{
+  "name": "csvbuilder",
+  "version": "1.0.0",
+  "description": "Utility package for building CSV files.",
+  "main": "dist/index.ts",
+  "author": "Tamas Vajda",
+  "license": "MIT",
+  "scripts": {
+    "test:unit": "node --unhandled-rejections=warn ./node_modules/jest/bin/jest.js --runInBand --testTimeout=15000 --unhandled-rejections=warn --config ./jest-unit.config.json"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.13",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5"
+  }
+}

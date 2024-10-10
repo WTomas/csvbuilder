@@ -1,0 +1,25 @@
+{
+    "compilerOptions": {
+        "module": "CommonJS",
+        "declaration": true,
+        "removeComments": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "allowSyntheticDefaultImports": true,
+        "strictNullChecks": true,
+        "target": "ES2022",
+        "sourceMap": true,
+        "incremental": true,
+        "esModuleInterop": true,
+        "lib": [
+            "es2022",
+            "dom"
+        ],
+        "skipLibCheck": true,
+    },
+    "exclude": [
+        "**/node_modules",
+        "**/dist",
+        "**/*.js"
+    ]
+}
