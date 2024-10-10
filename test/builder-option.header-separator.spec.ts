@@ -15,7 +15,7 @@ describe("Header separator options CSV Builder", () => {
       .createColumn("a.subHeader", ["x"])
       .createColumn("b.subHeader", ["y"]);
     expect(builder.getString()).toBe(
-      loadCSVFixture("header-separator/unseparated")
+      loadCSVFixture("builder-options/header-separator/unseparated")
     );
     expect(builder.getDimensions()).toMatchObject(<CSVDimensions>{
       nRows: 2,
@@ -30,7 +30,7 @@ describe("Header separator options CSV Builder", () => {
         headerSeparator: ".",
       });
     expect(builder.getString()).toBe(
-      loadCSVFixture("header-separator/separated")
+      loadCSVFixture("builder-options/header-separator/separated")
     );
     expect(builder.getDimensions()).toMatchObject(<CSVDimensions>{
       nRows: 3,
@@ -46,7 +46,7 @@ describe("Header separator options CSV Builder", () => {
         headerSeparator: ".",
       });
     expect(builder.getString()).toBe(
-      loadCSVFixture("header-separator/padded-separated")
+      loadCSVFixture("builder-options/header-separator/padded-separated")
     );
     expect(builder.getDimensions()).toMatchObject(<CSVDimensions>{
       nRows: 3,

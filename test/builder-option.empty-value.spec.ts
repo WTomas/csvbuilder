@@ -11,7 +11,7 @@ describe("Empty value options CSV Builder", () => {
       .createColumn("a", ["x", undefined])
       .createColumn("b", [null, "y"]);
     expect(builder.getString()).toBe(
-      loadCSVFixture("empty-value/default-empty-value")
+      loadCSVFixture("builder-options/empty-value/default-empty-value")
     );
     expect(builder.getDimensions()).toMatchObject(<CSVDimensions>{
       nRows: 3,
@@ -27,7 +27,7 @@ describe("Empty value options CSV Builder", () => {
         emptyValue: "N/A",
       });
     expect(builder.getString()).toBe(
-      loadCSVFixture("empty-value/custom-empty-value")
+      loadCSVFixture("builder-options/empty-value/custom-empty-value")
     );
     expect(builder.getDimensions()).toMatchObject(<CSVDimensions>{
       nRows: 3,
@@ -43,7 +43,9 @@ describe("Empty value options CSV Builder", () => {
         emptyValue: "EMPTY,VALUE",
       });
     expect(builder.getString()).toBe(
-      loadCSVFixture("empty-value/custom-empty-value-with-separator")
+      loadCSVFixture(
+        "builder-options/empty-value/custom-empty-value-with-separator"
+      )
     );
     expect(builder.getDimensions()).toMatchObject(<CSVDimensions>{
       nRows: 3,
@@ -59,7 +61,7 @@ describe("Empty value options CSV Builder", () => {
         emptyValue: "EMPTY\nVALUE",
       });
     expect(builder.getString()).toBe(
-      loadCSVFixture("empty-value/custom-empty-value-with-eol")
+      loadCSVFixture("builder-options/empty-value/custom-empty-value-with-eol")
     );
     expect(builder.getDimensions()).toMatchObject(<CSVDimensions>{
       nRows: 3,
@@ -72,7 +74,9 @@ describe("Empty value options CSV Builder", () => {
       .createColumn("a", ["", undefined])
       .createColumn("b", [null, 0]);
     expect(builder.getString()).toBe(
-      loadCSVFixture("empty-value/default-empty-value-falsy-values")
+      loadCSVFixture(
+        "builder-options/empty-value/default-empty-value-falsy-values"
+      )
     );
     expect(builder.getDimensions()).toMatchObject(<CSVDimensions>{
       nRows: 3,

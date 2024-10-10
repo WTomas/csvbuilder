@@ -11,7 +11,7 @@ describe("Field wrapper options CSV Builder", () => {
       .createColumn("a", ['x"'])
       .createColumn("b", ["y"]);
     expect(builder.getString()).toBe(
-      loadCSVFixture("field-wrapper/basic-escape")
+      loadCSVFixture("builder-options/field-wrapper/basic-escape")
     );
     expect(builder.getDimensions()).toMatchObject(<CSVDimensions>{
       nRows: 2,
@@ -25,7 +25,9 @@ describe("Field wrapper options CSV Builder", () => {
       .setBuilderOptions({
         fieldWrapper: "'",
       });
-    expect(builder.getString()).toBe(loadCSVFixture("field-wrapper/custom"));
+    expect(builder.getString()).toBe(
+      loadCSVFixture("builder-options/field-wrapper/custom")
+    );
     expect(builder.getDimensions()).toMatchObject(<CSVDimensions>{
       nRows: 2,
       nCols: 2,
@@ -39,7 +41,7 @@ describe("Field wrapper options CSV Builder", () => {
         fieldWrapper: "'",
       });
     expect(builder.getString()).toBe(
-      loadCSVFixture("field-wrapper/custom-escape")
+      loadCSVFixture("builder-options/field-wrapper/custom-escape")
     );
     expect(builder.getDimensions()).toMatchObject(<CSVDimensions>{
       nRows: 2,

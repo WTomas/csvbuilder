@@ -1,42 +1,48 @@
 import { CSVBuilder, CSVDimensions, ICSVBuilder } from "../src";
 import { loadCSVFixture } from "./utils/load-csv-fixture";
 
-describe("EOL options CSV Builder", () => {
+describe("Separator options CSV Builder", () => {
   type Template = {
     a: string;
     b: string;
   };
-  it("Should produce a CSV with an escaped EOL", () => {
+  it("Should produce a CSV with an escaped separator", () => {
     const builder = new CSVBuilder<Template>()
-      .createColumn("a", ["x\n"])
-      .createColumn("b", ["y"]);
-    expect(builder.getString()).toBe(loadCSVFixture("eol/basic-escape"));
+      .createColumn("a", ["x,"])
+      .createColumn("b", ["y;"]);
+    expect(builder.getString()).toBe(
+      loadCSVFixture("builder-options/separator/basic-escape")
+    );
     expect(builder.getDimensions()).toMatchObject(<CSVDimensions>{
       nRows: 2,
       nCols: 2,
     });
   });
-  it("Should produce a CSV with a custom EOL", () => {
+  it("Should produce a CSV with a custom separator", () => {
     const builder = new CSVBuilder<Template>()
       .createColumn("a", ["x"])
       .createColumn("b", ["y"])
       .setBuilderOptions({
-        eol: "\t",
+        separator: ";",
       });
-    expect(builder.getString()).toBe(loadCSVFixture("eol/custom"));
+    expect(builder.getString()).toBe(
+      loadCSVFixture("builder-options/separator/custom")
+    );
     expect(builder.getDimensions()).toMatchObject(<CSVDimensions>{
       nRows: 2,
       nCols: 2,
     });
   });
-  it("Should produce a CSV with a custom escaped EOL", () => {
+  it("Should produce a CSV with a custom separator with correct escaping", () => {
     const builder = new CSVBuilder<Template>()
-      .createColumn("a", ["x\t"])
+      .createColumn("a", ["x;"])
       .createColumn("b", ["y"])
       .setBuilderOptions({
-        eol: "\t",
+        separator: ";",
       });
-    expect(builder.getString()).toBe(loadCSVFixture("eol/custom-escape"));
+    expect(builder.getString()).toBe(
+      loadCSVFixture("builder-options/separator/custom-escape")
+    );
     expect(builder.getDimensions()).toMatchObject(<CSVDimensions>{
       nRows: 2,
       nCols: 2,

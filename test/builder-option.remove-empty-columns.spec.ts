@@ -11,7 +11,9 @@ describe("Remove empty columns options CSV Builder", () => {
       .createColumn("a", ["x", undefined])
       .createColumn("b", [null, undefined]);
     expect(builder.getString()).toBe(
-      loadCSVFixture("remove-empty-columns/unremoved-empty-columns")
+      loadCSVFixture(
+        "builder-options/remove-empty-columns/unremoved-empty-columns"
+      )
     );
     expect(builder.getDimensions()).toMatchObject(<CSVDimensions>{
       nRows: 3,
@@ -26,7 +28,9 @@ describe("Remove empty columns options CSV Builder", () => {
         removeEmptyColumns: true,
       });
     expect(builder.getString()).toBe(
-      loadCSVFixture("remove-empty-columns/removed-empty-columns")
+      loadCSVFixture(
+        "builder-options/remove-empty-columns/removed-empty-columns"
+      )
     );
     expect(builder.getDimensions()).toMatchObject(<CSVDimensions>{
       nRows: 3,
