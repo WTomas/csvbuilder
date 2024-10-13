@@ -51,7 +51,16 @@ describe("Builder merge", () => {
       .mapColumn("Country", "Population", (country) => populations[country])
       .mapColumn("Capital", "CapitalRiver", (capital) => rivers[capital]);
 
-    builder = CSVBuilder.merge(builder1, builder2);
+    builder = CSVBuilder.merge(builder1, builder2)
+      .setColumnOptions("Country", { priority: 1 })
+      .setColumnOptions("Capital", { priority: 2 })
+      .setColumnOptions("Country and Capital", { priority: 3 })
+      .setColumnOptions("CapitalRiver", { priority: 4, emptyValue: "N/A" })
+      .setColumnOptions("Population", { priority: 5 })
+      .sortColumns()
+      .sortRows((a, b) => {
+        return b["Population"] - a["Population"];
+      });
     expectedCsv = loadCSVFixture("basic/countries");
   });
 

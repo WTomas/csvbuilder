@@ -1,7 +1,7 @@
 export type CSVTemplate = Record<string, any>;
 
 export type CSVData<T extends CSVTemplate> = Partial<{
-  [K in keyof T]: Array<T>;
+  [K in keyof T]: Array<T[K]>;
 }>;
 
 export type CSVColumnOptions<T extends CSVTemplate> = Partial<{

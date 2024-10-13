@@ -1,7 +1,40 @@
-import { CSVBuilder, CSVDimensions, ICSVBuilder } from "../src";
+import {
+  CSVBuilder,
+  CSVBuilderOptions,
+  CSVColumnOptions,
+  CSVData,
+  CSVDimensions,
+  DEFAULT_EMPTY_VALUE,
+  DEFAULT_EOL,
+  DEFAULT_FIELD_WRAPPER,
+  DEFAULT_SEPARATOR,
+  ICSVBuilder,
+} from "../src";
 import { loadCSVFixture } from "./utils/load-csv-fixture";
 
 describe("Basic CSV Builder", () => {
+  describe("Empty builder", () => {
+    it("Empty builder should produce empty string", () => {
+      expect(new CSVBuilder().getString()).toBe("");
+    });
+
+    it("Empty builder should produce correct dimensions", () => {
+      expect(new CSVBuilder().getDimensions()).toMatchObject(<CSVDimensions>{
+        nRows: 0,
+        nCols: 0,
+      });
+    });
+
+    it("Empty builder should produce empty string and correct dimensions", () => {
+      const [s, dimensions] = new CSVBuilder().getStringAndDimensions();
+      expect(s).toBe("");
+      expect(dimensions).toMatchObject(<CSVDimensions>{
+        nRows: 0,
+        nCols: 0,
+      });
+    });
+  });
+
   type Template = {
     Country: string;
     Capital: string;
@@ -30,13 +63,22 @@ describe("Basic CSV Builder", () => {
   beforeAll(() => {
     builder = new CSVBuilder<Template>()
       .createColumn("Country", countries)
+      .setColumnOptions("Country", { priority: 1 })
       .mapColumn("Country", "Capital", (country) => capitals[country])
+      .setColumnOptions("Capital", { priority: 2 })
       .mapColumns(
         "Country and Capital",
         ({ Country: country, Capital: capital }) => `${country} - ${capital}`
       )
+      .setColumnOptions("Country and Capital", { priority: 3 })
       .mapColumn("Country", "Population", (country) => populations[country])
-      .mapColumn("Capital", "CapitalRiver", (capital) => rivers[capital]);
+      .setColumnOptions("Population", { priority: 5 })
+      .mapColumn("Capital", "CapitalRiver", (capital) => rivers[capital])
+      .setColumnOptions("CapitalRiver", { priority: 4, emptyValue: "N/A" })
+      .sortColumns()
+      .sortRows((a, b) => {
+        return b["Population"] - a["Population"];
+      });
     expectedCsv = loadCSVFixture("basic/countries");
   });
 
@@ -55,6 +97,34 @@ describe("Basic CSV Builder", () => {
     expect(dimensions).toMatchObject(<CSVDimensions>{
       nRows: 4,
       nCols: 5,
+    });
+  });
+  it("Should have the correct internal data", () => {
+    const [data, columnOptions, builderOptions] = builder.getDataAndOptions();
+    expect(data).toMatchObject(<Partial<CSVData<Template>>>{
+      Country: ["Spain", "Poland", "Hungary"],
+      Capital: ["Madrid", "Warsaw", "Budapest"],
+      "Country and Capital": [
+        "Spain - Madrid",
+        "Poland - Warsaw",
+        "Hungary - Budapest",
+      ],
+      CapitalRiver: [undefined, "Vistula", "Danube"],
+      Population: [477800000, 36820000, 9643000],
+    });
+    expect(columnOptions).toMatchObject(<Partial<CSVColumnOptions<Template>>>{
+      Country: { priority: 1 },
+      Capital: { priority: 2 },
+      "Country and Capital": { priority: 3 },
+      CapitalRiver: { priority: 4, emptyValue: "N/A" },
+      Population: { priority: 5 },
+    });
+    expect(builderOptions).toMatchObject(<CSVBuilderOptions>{
+      emptyValue: DEFAULT_EMPTY_VALUE,
+      eol: DEFAULT_EOL,
+      separator: DEFAULT_SEPARATOR,
+      fieldWrapper: DEFAULT_FIELD_WRAPPER,
+      removeEmptyColumns: false,
     });
   });
 });

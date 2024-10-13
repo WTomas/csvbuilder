@@ -1,37 +1,19 @@
 import { CSVBuilder, CSVDimensions, ICSVBuilder } from "../src";
 import { loadCSVFixture } from "./utils/load-csv-fixture";
 
-describe("Remove empty columns options CSV Builder", () => {
+describe("Remove if empty column options CSV Builder", () => {
   type Template = {
     a: string | undefined;
-    b: string | null | undefined | number;
+    b: string | null | number;
   };
-  it("Should produce a CSV with empty columns kept", () => {
+  it("Should produce a CSV with a custom empty value for the column", () => {
     const builder = new CSVBuilder<Template>()
       .createColumn("a", ["x", undefined])
-      .createColumn("b", [null, undefined]);
-    expect(builder.getString()).toBe(
-      loadCSVFixture(
-        "builder-options/remove-empty-columns/unremoved-empty-columns"
-      )
-    );
-    expect(builder.getDimensions()).toMatchObject(<CSVDimensions>{
-      nRows: 3,
-      nCols: 2,
-    });
-  });
+      .createColumn("b", [null, null])
+      .setColumnOptions("b", { removeIfEmpty: true });
 
-  it("Should produce a CSV with empty columns kept", () => {
-    const builder = new CSVBuilder<Template>()
-      .createColumn("a", ["x", undefined])
-      .createColumn("b", [null, undefined])
-      .setBuilderOptions({
-        removeEmptyColumns: true,
-      });
     expect(builder.getString()).toBe(
-      loadCSVFixture(
-        "builder-options/remove-empty-columns/removed-empty-columns"
-      )
+      loadCSVFixture("column-options/remove-if-empty/basic-remove-if-empty")
     );
     expect(builder.getDimensions()).toMatchObject(<CSVDimensions>{
       nRows: 3,
@@ -39,15 +21,29 @@ describe("Remove empty columns options CSV Builder", () => {
     });
   });
 
-  it("Should produce a CSV with falsy columns kept", () => {
+  it("Should produce a CSV with the column kept", () => {
     const builder = new CSVBuilder<Template>()
-      .createColumn("a", ["", ""])
-      .createColumn("b", [0, 0])
-      .setBuilderOptions({
-        removeEmptyColumns: true,
-      });
+      .createColumn("a", ["x", undefined])
+      .createColumn("b", ["y", null])
+      .setColumnOptions("b", { removeIfEmpty: true });
+
     expect(builder.getString()).toBe(
-      loadCSVFixture("builder-options/remove-empty-columns/falsy-columns")
+      loadCSVFixture("column-options/remove-if-empty/basic-unremove-if-empty")
+    );
+    expect(builder.getDimensions()).toMatchObject(<CSVDimensions>{
+      nRows: 3,
+      nCols: 2,
+    });
+  });
+
+  it("Should produce a CSV with a custom empty value for the column", () => {
+    const builder = new CSVBuilder<Template>()
+      .createColumn("a", ["x", undefined])
+      .createColumn("b", [0, 0])
+      .setColumnOptions("b", { removeIfEmpty: true });
+
+    expect(builder.getString()).toBe(
+      loadCSVFixture("column-options/remove-if-empty/falsy-column")
     );
     expect(builder.getDimensions()).toMatchObject(<CSVDimensions>{
       nRows: 3,
@@ -59,9 +55,8 @@ describe("Remove empty columns options CSV Builder", () => {
     const builder = new CSVBuilder<Template>()
       .createColumn("a", [undefined, undefined])
       .createColumn("b", [null, null])
-      .setBuilderOptions({
-        removeEmptyColumns: true,
-      });
+      .setColumnOptions("a", { removeIfEmpty: true })
+      .setColumnOptions("b", { removeIfEmpty: true });
 
     expect(builder.getString()).toBe("");
     expect(builder.getDimensions()).toMatchObject(<CSVDimensions>{

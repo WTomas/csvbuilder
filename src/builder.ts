@@ -18,7 +18,7 @@ export class CSVBuilder<T extends CSVTemplate = Record<string, any>>
   implements ICSVBuilder<T>
 {
   private data: CSVData<T> = {};
-  private dataLength: number;
+  private dataLength: number = 0;
   private options: CSVBuilderOptions = {
     separator: DEFAULT_SEPARATOR,
     eol: DEFAULT_EOL,
@@ -29,7 +29,7 @@ export class CSVBuilder<T extends CSVTemplate = Record<string, any>>
   private columnOptions: CSVColumnOptions<T> = {};
 
   private checkLength(column: any[]): void {
-    if (this.dataLength === undefined) {
+    if (this.dataLength === 0) {
       this.dataLength = column.length;
       return;
     }
@@ -125,8 +125,8 @@ export class CSVBuilder<T extends CSVTemplate = Record<string, any>>
     this.data = Object.keys(this.data)
       .sort((aCol, bCol) => {
         return (
-          (this.columnOptions[bCol]?.priority ?? Number.MIN_SAFE_INTEGER) -
-          (this.columnOptions[aCol]?.priority ?? Number.MIN_SAFE_INTEGER)
+          (this.columnOptions[aCol]?.priority ?? Number.MIN_SAFE_INTEGER) -
+          (this.columnOptions[bCol]?.priority ?? Number.MIN_SAFE_INTEGER)
         );
       })
       .reduce((data, colName) => {
@@ -167,24 +167,24 @@ export class CSVBuilder<T extends CSVTemplate = Record<string, any>>
 
   public getString(): string {
     let [headerString, columns] = this.getHeadersRows();
-    return (
-      headerString +
-      [...Array(this.dataLength).keys()]
-        .map((index) =>
-          columns.map((column) =>
-            this.formatCell(this.data[column]?.[index], column)
-          )
-        )
-        .map((fields) => fields.join(this.options.separator))
-        .join(this.options.eol)
-    );
+    return columns.length
+      ? headerString +
+          [...Array(this.dataLength).keys()]
+            .map((index) =>
+              columns.map((column) =>
+                this.formatCell(this.data[column]?.[index], column)
+              )
+            )
+            .map((fields) => fields.join(this.options.separator))
+            .join(this.options.eol)
+      : "";
   }
 
   public getDimensions(): CSVDimensions {
-    const { maxHeaderLength, keys } = this.splitHeaders();
+    const { maxHeaderLength, columns } = this.splitHeaders();
     return {
-      nRows: this.dataLength + maxHeaderLength,
-      nCols: keys.length,
+      nRows: columns.length ? this.dataLength + maxHeaderLength : 0,
+      nCols: columns.length,
     };
   }
 
@@ -239,30 +239,31 @@ export class CSVBuilder<T extends CSVTemplate = Record<string, any>>
   }
 
   private getHeadersRows(): [string, Array<keyof T>] {
-    const { maxHeaderLength, splitHeaders, keys } = this.splitHeaders();
-    const headerString =
-      [...Array(maxHeaderLength).keys()]
-        .map((index) =>
-          splitHeaders.map((splitHeader) =>
-            this.formatCell(splitHeader[index] ?? "")
+    const { maxHeaderLength, splitHeaders, columns } = this.splitHeaders();
+    const headerString = maxHeaderLength
+      ? [...Array(maxHeaderLength).keys()]
+          .map((index) =>
+            splitHeaders.map((splitHeader) =>
+              this.formatCell(splitHeader[index] ?? "")
+            )
           )
-        )
-        .map((fields) => fields.join(this.options.separator))
-        .join(this.options.eol) + this.options.eol;
-    return [headerString, keys];
+          .map((fields) => fields.join(this.options.separator))
+          .join(this.options.eol) + this.options.eol
+      : "";
+    return [headerString, columns];
   }
 
   private splitHeaders(): {
     maxHeaderLength: number;
     splitHeaders: string[][];
-    keys: Array<keyof T>;
+    columns: Array<keyof T>;
   } {
-    const keys = Object.keys(this.data).filter((key) =>
+    const columns = Object.keys(this.data).filter((key) =>
       this.options.removeEmptyColumns || this.columnOptions[key]?.removeIfEmpty
-        ? this.data[key]?.some(Boolean)
+        ? this.data[key]?.some((v) => v !== null && v !== undefined)
         : true
     );
-    const splitHeaders = keys.map((key) =>
+    const splitHeaders = columns.map((key) =>
       this.options.headerSeparator
         ? key.split(this.options.headerSeparator)
         : [key]
@@ -271,11 +272,11 @@ export class CSVBuilder<T extends CSVTemplate = Record<string, any>>
       .map((splitColumn) => splitColumn.length)
       .reduce((acc, curr) => {
         return curr > acc ? curr : acc;
-      }, Number.MIN_SAFE_INTEGER);
+      }, 0);
     return {
       maxHeaderLength,
       splitHeaders,
-      keys,
+      columns,
     };
   }
 }
