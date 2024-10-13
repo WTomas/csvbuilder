@@ -9,13 +9,13 @@
         "strictNullChecks": true,
         "target": "ES2022",
         "sourceMap": true,
-        "incremental": true,
         "esModuleInterop": true,
         "lib": [
             "es2022",
             "dom"
         ],
         "skipLibCheck": true,
+        "noEmit": true,
     },
     "exclude": [
         "**/node_modules",

@@ -203,10 +203,10 @@ export class CSVBuilder<T extends CSVTemplate = Record<string, any>>
   public static merge<T extends CSVTemplate>(
     ...builders: CSVBuilder<T>[]
   ): CSVBuilder<T> {
-    if (builders.length == 0) {
+    if (builders.length === 0) {
       throw new Error("Please provide at least one builder to merge!");
     }
-    if (builders.length == 1) return builders[0];
+    if (builders.length === 1) return builders[0];
     const [firstBuilder, ...restOfBuilders] = builders;
     return restOfBuilders.reduce(
       (aggrBuilder, builder) => aggrBuilder.concat(builder),
