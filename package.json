@@ -1,6 +1,6 @@
 {
   "name": "ts-csv-builder",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "Utility package for building CSV files.",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -28,7 +28,8 @@
     "test:unit": "node --unhandled-rejections=warn ./node_modules/jest/bin/jest.js --runInBand --testTimeout=15000 --unhandled-rejections=warn --config ./jest-unit.config.json"
   },
   "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
+    "registry": "https://registry.npmjs.org/",
+    "directory": "./dist"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.9",
