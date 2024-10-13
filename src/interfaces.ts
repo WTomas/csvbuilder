@@ -19,8 +19,11 @@ export interface ICSVBuilder<T extends CSVTemplate> {
     toColumn: K,
     callbackFunc: (value: T, index: number, values: Array<T>) => T[K]
   ): this;
-  concat(builder: CSVBuilder<T>): this;
-  setColumnOptions<K extends keyof T>(column: K, options: ColumnOptions): this;
+  concat(other: CSVBuilder<T>): this;
+  setColumnOptions<K extends keyof T>(
+    column: K,
+    options: ColumnOptions<T, K>
+  ): this;
   setBuilderOptions(options: Partial<CSVBuilderOptions>): this;
   sortColumns(): this;
   sortRows(callbackFn: (a: T, b: T) => number): this;

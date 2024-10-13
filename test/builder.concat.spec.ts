@@ -20,7 +20,7 @@ describe("Builder concatenation", () => {
   const populations: Record<string, number> = {
     Hungary: 9643000,
     Poland: 36820000,
-    Spain: 477800000,
+    Spain: 47780000,
   };
   const rivers: Record<string, string> = {
     Budapest: "Danube",
@@ -29,6 +29,9 @@ describe("Builder concatenation", () => {
   let builder: CSVBuilder<Template>;
   let otherBuilder: CSVBuilder<Template>;
   let expectedCsv: string;
+  const populationTransformFunction = (value: number): string =>
+    value.toLocaleString();
+
   beforeAll(() => {
     builder = new CSVBuilder<Template>()
       .createColumn("Country", countries)
@@ -56,7 +59,9 @@ describe("Builder concatenation", () => {
       .setColumnOptions("Capital", { priority: 2 })
       .setColumnOptions("Country and Capital", { priority: 3 })
       .setColumnOptions("CapitalRiver", { priority: 4, emptyValue: "N/A" })
-      .setColumnOptions("Population", { priority: 5 })
+      .setColumnOptions("Population", {
+        transform: populationTransformFunction,
+      })
       .sortColumns()
       .sortRows((a, b) => {
         return b["Population"] - a["Population"];

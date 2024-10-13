@@ -52,7 +52,7 @@ describe("Basic CSV Builder", () => {
   const populations: Record<string, number> = {
     Hungary: 9643000,
     Poland: 36820000,
-    Spain: 477800000,
+    Spain: 47780000,
   };
   const rivers: Record<string, string> = {
     Budapest: "Danube",
@@ -60,6 +60,9 @@ describe("Basic CSV Builder", () => {
   };
   let builder: ICSVBuilder<Template>;
   let expectedCsv: string;
+  const populationTransformFunction = (value: number): string =>
+    value.toLocaleString();
+
   beforeAll(() => {
     builder = new CSVBuilder<Template>()
       .createColumn("Country", countries)
@@ -72,13 +75,16 @@ describe("Basic CSV Builder", () => {
       )
       .setColumnOptions("Country and Capital", { priority: 3 })
       .mapColumn("Country", "Population", (country) => populations[country])
-      .setColumnOptions("Population", { priority: 5 })
+      .setColumnOptions("Population", {
+        transform: populationTransformFunction,
+      })
       .mapColumn("Capital", "CapitalRiver", (capital) => rivers[capital])
       .setColumnOptions("CapitalRiver", { priority: 4, emptyValue: "N/A" })
       .sortColumns()
-      .sortRows((a, b) => {
-        return b["Population"] - a["Population"];
-      });
+      .sortRows(
+        ({ Population: populationA }, { Population: populationB }) =>
+          populationB - populationA
+      );
     expectedCsv = loadCSVFixture("basic/countries");
   });
 
@@ -110,14 +116,14 @@ describe("Basic CSV Builder", () => {
         "Hungary - Budapest",
       ],
       CapitalRiver: [undefined, "Vistula", "Danube"],
-      Population: [477800000, 36820000, 9643000],
+      Population: [47780000, 36820000, 9643000],
     });
     expect(columnOptions).toMatchObject(<Partial<CSVColumnOptions<Template>>>{
       Country: { priority: 1 },
       Capital: { priority: 2 },
       "Country and Capital": { priority: 3 },
       CapitalRiver: { priority: 4, emptyValue: "N/A" },
-      Population: { priority: 5 },
+      Population: { transform: populationTransformFunction },
     });
     expect(builderOptions).toMatchObject(<CSVBuilderOptions>{
       emptyValue: DEFAULT_EMPTY_VALUE,

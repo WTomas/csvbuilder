@@ -5,13 +5,14 @@ export type CSVData<T extends CSVTemplate> = Partial<{
 }>;
 
 export type CSVColumnOptions<T extends CSVTemplate> = Partial<{
-  [K in keyof T]: ColumnOptions;
+  [K in keyof T]: ColumnOptions<T, K>;
 }>;
 
-export type ColumnOptions = Partial<{
+export type ColumnOptions<T extends CSVTemplate, K extends keyof T> = Partial<{
   priority: number;
   emptyValue: string | null;
   removeIfEmpty: boolean;
+  transform?: (value: T[K], index, values: Array<T[K]>) => string;
 }>;
 
 export type CSVBuilderOptions = {

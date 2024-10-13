@@ -20,7 +20,7 @@ describe("Builder merge", () => {
   const populations: Record<string, number> = {
     Hungary: 9643000,
     Poland: 36820000,
-    Spain: 477800000,
+    Spain: 47780000,
   };
   const rivers: Record<string, string> = {
     Budapest: "Danube",
@@ -30,6 +30,10 @@ describe("Builder merge", () => {
   let builder2: CSVBuilder<Template>;
   let builder: CSVBuilder<Template>;
   let expectedCsv: string;
+
+  const populationTransformFunction = (value: number): string =>
+    value.toLocaleString();
+
   beforeAll(() => {
     builder1 = new CSVBuilder<Template>()
       .createColumn("Country", countries)
@@ -56,7 +60,9 @@ describe("Builder merge", () => {
       .setColumnOptions("Capital", { priority: 2 })
       .setColumnOptions("Country and Capital", { priority: 3 })
       .setColumnOptions("CapitalRiver", { priority: 4, emptyValue: "N/A" })
-      .setColumnOptions("Population", { priority: 5 })
+      .setColumnOptions("Population", {
+        transform: populationTransformFunction,
+      })
       .sortColumns()
       .sortRows((a, b) => {
         return b["Population"] - a["Population"];

@@ -73,14 +73,38 @@ export class CSVBuilder<T extends CSVTemplate = Record<string, any>>
     return this;
   }
 
-  public concat(builder: CSVBuilder<T>): this {
-    this.data = Object.entries(builder.data).reduce((data, [key, values]) => {
+  private checkConcatConstraints(other: CSVBuilder<T>): void {
+    const sumOfDataLengths = this.dataLength + other.dataLength;
+
+    const errors = [
+      ...new Set([...Object.keys(this.data), ...Object.keys(other.data)]),
+    ]
+      .map((column) => [
+        column,
+        (this.data[column]?.length ?? 0) + (other.data[column]?.length ?? 0) ===
+          sumOfDataLengths,
+      ])
+      .map(([column, matchingLenghts]) =>
+        matchingLenghts
+          ? null
+          : `After concatenation, the length of column "${column}" does not match the resulting builder's row length.`
+      )
+      .filter(Boolean);
+
+    if (errors.length) {
+      throw new Error(`Invalid column lengths: \n - ${errors.join("\n\t- ")}`);
+    }
+  }
+
+  public concat(other: CSVBuilder<T>): this {
+    this.checkConcatConstraints(other);
+    this.data = Object.entries(other.data).reduce((data, [key, values]) => {
       return {
         ...data,
         [key]: key in data ? [...(data[key] as []), ...(values as [])] : values,
       };
     }, this.data);
-    this.columnOptions = Object.entries(builder.columnOptions).reduce(
+    this.columnOptions = Object.entries(other.columnOptions).reduce(
       (aggrOptions, [key, options]) => {
         return {
           ...aggrOptions,
@@ -89,7 +113,7 @@ export class CSVBuilder<T extends CSVTemplate = Record<string, any>>
       },
       this.columnOptions
     );
-    this.options = Object.entries(builder.options).reduce(
+    this.options = Object.entries(other.options).reduce(
       (aggrOptions, [key, value]) => {
         return {
           ...aggrOptions,
@@ -99,13 +123,13 @@ export class CSVBuilder<T extends CSVTemplate = Record<string, any>>
       this.options
     );
 
-    this.dataLength = this.dataLength + builder.dataLength;
+    this.dataLength = this.dataLength + other.dataLength;
     return this;
   }
 
   public setColumnOptions<K extends keyof T>(
     column: K,
-    options: ColumnOptions
+    options: ColumnOptions<T, K>
   ): this {
     this.columnOptions[column] = options;
     return this;
@@ -125,8 +149,8 @@ export class CSVBuilder<T extends CSVTemplate = Record<string, any>>
     this.data = Object.keys(this.data)
       .sort((aCol, bCol) => {
         return (
-          (this.columnOptions[aCol]?.priority ?? Number.MIN_SAFE_INTEGER) -
-          (this.columnOptions[bCol]?.priority ?? Number.MIN_SAFE_INTEGER)
+          (this.columnOptions[aCol]?.priority ?? Number.MAX_SAFE_INTEGER) -
+          (this.columnOptions[bCol]?.priority ?? Number.MAX_SAFE_INTEGER)
         );
       })
       .reduce((data, colName) => {
@@ -171,9 +195,20 @@ export class CSVBuilder<T extends CSVTemplate = Record<string, any>>
       ? headerString +
           [...Array(this.dataLength).keys()]
             .map((index) =>
-              columns.map((column) =>
-                this.formatCell(this.data[column]?.[index], column)
-              )
+              columns.map((column) => {
+                const f = this.columnOptions[column]?.transform;
+                const columnValue = this.data[column]?.[index];
+                return this.formatCell(
+                  f
+                    ? f(
+                        columnValue as T[string],
+                        index,
+                        this.data[column] as Array<T[string]>
+                      )
+                    : columnValue,
+                  column
+                );
+              })
             )
             .map((fields) => fields.join(this.options.separator))
             .join(this.options.eol)
