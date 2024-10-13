@@ -1,0 +1,6 @@
+# original typescript code
+./src
+./node_modules
+./jest-unit.config.json
+.gitignore
+tsconfig.json
