@@ -1,6 +1,6 @@
 {
   "name": "ts-csv-builder",
-  "version": "1.0.3",
+  "version": "1.0.2",
   "description": "Utility package for building CSV files.",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
