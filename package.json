@@ -23,6 +23,7 @@
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --dts",
     "lint": "tsc",
+    "publish": "yarn build && changeset publish",
     "test:unit": "node --unhandled-rejections=warn ./node_modules/jest/bin/jest.js --runInBand --testTimeout=15000 --unhandled-rejections=warn --config ./jest-unit.config.json"
   },
   "publishConfig": {
