@@ -5,7 +5,7 @@ CSVBuilder is a generic utility that aims to simplify the creation of CSV files 
 ## Getting started
 First, if you know the layout of your CSV file, you can define a type `CSVTemplate extends Record<string, any>`, which can then be provided as a type-variable of your builder. For example, if you want to build a csv-file with the following columns: 
 
-|Country|Capital|Country and Capital|CapitalRiver|Population|
+|Country|Capital|Country and Capital|Capital River|Population|
 | --- | --- | --- | --- | --- | 
 |Spain|Madrid|Spain - Madrid|N/A|47,780,000|
 |Poland|Warsaw|Poland - Warsaw|Vistula|36,820,000|
@@ -106,7 +106,7 @@ const rivers: Record<string, string> = {
 builder
   .mapColumn("Country", "Capital", (country) => capitals[country])
   .mapColumn("Country", "Population", (country) => populations[country])
-  .mapColumn("Capital", "CapitalRiver", (capital) => rivers[capital])
+  .mapColumn("Capital", "Capital River", (capital) => rivers[capital])
 ```
 
 Where the callback-function's types are restricted to map from string => number.
@@ -131,7 +131,7 @@ Columns specifically can have some options configured, which will take presedenc
 | `priority` | `number` | `Number.MAX_SAFE_INTEGER` | Column priority will determine the column ordering when calling the `.sortColumns` builder method. Lower priority columns will be ordered first. Columns without a set priority will be ordered last. |
 | `emptyValue` | `string` \| `null` | `null` | Value to replace empty (`null` \| `undefined`) column values with. Takes precedence over the builder level option. | 
 | `removeIfEmpty` | `boolean` | `false` | Remove the column from the resulting CSV, if it only contrains empty (`null` \| `undefined`) values. |
-| `transform` | `<T extends CSVTemplate, K extends keyof T>(value: T[K], index: number, values: Array<T[K]>) => string` | `undefined` | Callback function to transform the column values only in the resulting CSV string, but not while building. |
+| `transform` | `CSVColumnTransform<Template extends CSVTemplate, Column extends keyof Template>` | `undefined` | Callback function to transform the column values only in the resulting CSV string, but not while building. |
 
 
 Set the column options in the following way:
@@ -140,7 +140,7 @@ builder
     .setColumnOptions("Country", { priority: 1 })
     .setColumnOptions("Capital", { priority: 2 })
     .setColumnOptions("Country and Capital", { priority: 3 })
-    .setColumnOptions("CapitalRiver", { priority: 4, emptyValue: "N/A" })
+    .setColumnOptions("Capital River", { priority: 4, emptyValue: "N/A" })
     .setColumnOptions("Population", {
         transform: (value: number): string => value.toLocaleString();
       })
@@ -252,20 +252,19 @@ const rivers: Record<string, string> = {
     Warsaw: "Vistula",
   };
 
-
 type CSVTemplate = {
     Country: string;
     Capital: string;
     Population: number;
     "Country and Capital": string;
-    CapitalRiver: string | undefined;
+    "Capital River": string | undefined;
   };
 
 const csvString = new CSVBuilder<CSVTemplate>()
   .createColumn('Country', countries)
   .mapColumn("Country", "Capital", (country) => capitals[country])
   .mapColumn("Country", "Population", (country) => populations[country])
-  .mapColumn("Capital", "CapitalRiver", (capital) => rivers[capital])
+  .mapColumn("Capital", "Capital River", (capital) => rivers[capital])
   .mapColumns(
     "Country and Capital",
     ({ Country: country, Capital: capital }) => `${country} - ${capital}`
@@ -273,7 +272,7 @@ const csvString = new CSVBuilder<CSVTemplate>()
   .setColumnOptions("Country", { priority: 1 })
   .setColumnOptions("Capital", { priority: 2 })
   .setColumnOptions("Country and Capital", { priority: 3 })
-  .setColumnOptions("CapitalRiver", { priority: 4, emptyValue: "N/A" })
+  .setColumnOptions("Capital River", { priority: 4, emptyValue: "N/A" })
   .setColumnOptions("Population", {
         transform: (value: number): string => value.toLocaleString();
   })
@@ -300,8 +299,8 @@ type Subject = "Maths" | "Literature" | "Arts"
 
 type Template = {
     "Student name": string, 
-    `${Subject} Final Mark`: number,
-}
+    
+} & {[K in Subject as `${Subject} Final Mark`]: number}
 ```
 
 Or, if you cannot make assertions about the subject, simply do:
