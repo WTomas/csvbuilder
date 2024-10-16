@@ -22,7 +22,7 @@ type CSVTemplate = {
     Capital: string;
     Population: number;
     "Country and Capital": string;
-    CapitalRiver: string | undefined;
+    "Capital River": string | undefined;
   };
 
 const builder = new CSVBuilder<CSVTemplate>()
@@ -300,7 +300,7 @@ type Subject = "Maths" | "Literature" | "Arts"
 type Template = {
     "Student name": string, 
     
-} & {[K in Subject as `${Subject} Final Mark`]: number}
+} & {[K in Subject as `${K} Final Mark`]: number}
 ```
 
 Or, if you cannot make assertions about the subject, simply do:
