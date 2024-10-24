@@ -41,6 +41,7 @@ describe("Basic CSV Builder", () => {
     Population: number;
     "Country and Capital": string;
     CapitalRiver: string | undefined;
+    IrrelevantColumn: number;
   };
 
   const countries = ["Hungary", "Poland", "Spain"];
@@ -58,7 +59,7 @@ describe("Basic CSV Builder", () => {
     Budapest: "Danube",
     Warsaw: "Vistula",
   };
-  let builder: ICSVBuilder<Template>;
+  let builder: CSVBuilder<any>;
   let expectedCsv: string;
   const populationTransformFunction = (value: number): string =>
     value.toLocaleString();
@@ -84,7 +85,12 @@ describe("Basic CSV Builder", () => {
       .sortRows(
         ({ Population: populationA }, { Population: populationB }) =>
           populationB - populationA
-      );
+      )
+      .mapColumn("Country", "IrrelevantColumn", () => 1)
+      .setColumnOptions("IrrelevantColumn", {
+        priority: -100,
+      })
+      .dropColumn("IrrelevantColumn");
     expectedCsv = loadCSVFixture("basic/countries");
   });
 

@@ -45,6 +45,12 @@ export class CSVBuilder<T extends CSVTemplate = Record<string, any>>
     return this;
   }
 
+  public dropColumn<K extends keyof T>(column: K): this {
+    delete this.data[column];
+    delete this.columnOptions[column];
+    return this;
+  }
+
   public mapColumn<K1 extends keyof T, K2 extends keyof T>(
     fromColumn: K1,
     toColumn: K2,
