@@ -1,5 +1,11 @@
 # ts-csv-builder
 
+## 1.1.0
+
+### Minor Changes
+
+- be91438: Added support for dropping columns.
+
 ## 1.0.6
 
 ### Patch Changes
