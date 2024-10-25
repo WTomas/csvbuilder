@@ -10,6 +10,7 @@ import {
 
 export interface ICSVBuilder<T extends CSVTemplate> {
   createColumn<K extends keyof T>(column: K, values: Array<T[K]>): this;
+  dropColumn<K extends keyof T>(column: K): this;
   mapColumn<K1 extends keyof T, K2 extends keyof T>(
     fromColumn: K1,
     toColumn: K2,

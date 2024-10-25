@@ -154,6 +154,14 @@ As mentioned in [Column options](#column-options), the column priority will deci
 builder.sortColumns()
 ```
 
+## Dropping columns
+
+In some cases, it is useful to have a column be present as you are building the CSV, for example to make mappings easier, but it should not be included in the final output. For this, you can simply use:
+```typescript
+builder.dropColumn("Some column")
+```
+to get rid of the column and the associated column options as well.
+
 ## Sorting rows
 Sorting rows work in the same fashion as the regular Javascript `Array.prototype.sort()` function, where you have to provide a callback which takes `a: CSVTemplate` and `b: CSVTemplate` and returns a number.
 
