@@ -82,35 +82,32 @@ export class CSVBuilder<T extends CSVTemplate = Record<string, any>>
     return this;
   }
 
-  private checkConcatConstraints(other: CSVBuilder<T>): void {
-    const sumOfDataLengths = this.dataLength + other.dataLength;
+  private getMissingColumns(other: CSVBuilder<T>): Array<keyof T> {
+    return [
+      ...Object.keys(other.data).filter(
+        (otherKey) => !Object.keys(this.data).includes(otherKey)
+      ),
+    ];
+  }
 
-    const errors = [
-      ...new Set([...Object.keys(this.data), ...Object.keys(other.data)]),
-    ]
-      .map((column) => [
-        column,
-        (this.data[column]?.length ?? 0) + (other.data[column]?.length ?? 0) ===
-          sumOfDataLengths,
-      ])
-      .map(([column, matchingLenghts]) =>
-        matchingLenghts
-          ? null
-          : `After concatenation, the length of column "${column}" does not match the resulting builder's row length.`
-      )
-      .filter(Boolean);
-
-    if (errors.length) {
-      throw new Error(`Invalid column lengths: \n - ${errors.join("\n\t- ")}`);
-    }
+  private padMissingColumns(other: CSVBuilder<T>): this {
+    this.data = this.getMissingColumns(other).reduce(
+      (acc, missingColumn) => ({
+        ...acc,
+        [missingColumn]: Array(this.dataLength).fill(null),
+      }),
+      this.data
+    );
+    return this;
   }
 
   public concat(other: CSVBuilder<T>): this {
-    this.checkConcatConstraints(other);
+    this.padMissingColumns(other);
+    other.padMissingColumns(this);
     this.data = Object.entries(other.data).reduce((data, [key, values]) => {
       return {
         ...data,
-        [key]: key in data ? [...(data[key] as []), ...(values as [])] : values,
+        [key]: [...(data[key] as []), ...(values as [])],
       };
     }, this.data);
     this.columnOptions = Object.entries(other.columnOptions).reduce(
@@ -140,17 +137,26 @@ export class CSVBuilder<T extends CSVTemplate = Record<string, any>>
     column: K,
     options: ColumnOptions<T, K>
   ): this {
-    this.columnOptions[column] = options;
+    this.columnOptions[column] = Object.entries(options).reduce(
+      (aggrOptions, [key, value]) => ({
+        ...aggrOptions,
+        [key]: value,
+      }),
+      this.columnOptions[column]
+    );
     return this;
   }
 
   public setBuilderOptions(options: Partial<CSVBuilderOptions>): this {
-    this.options = Object.entries(options).reduce((options, [key, value]) => {
-      return {
-        ...options,
-        [key]: value,
-      };
-    }, this.options);
+    this.options = Object.entries(options).reduce(
+      (aggrOptions, [key, value]) => {
+        return {
+          ...aggrOptions,
+          [key]: value,
+        };
+      },
+      this.options
+    );
     return this;
   }
 
@@ -205,11 +211,11 @@ export class CSVBuilder<T extends CSVTemplate = Record<string, any>>
           [...Array(this.dataLength).keys()]
             .map((index) =>
               columns.map((column) => {
-                const f = this.columnOptions[column]?.transform;
+                const transform = this.columnOptions[column]?.transform;
                 const columnValue = this.data[column]?.[index];
                 return this.formatCell(
-                  f
-                    ? f(
+                  transform
+                    ? transform(
                         columnValue as T[string],
                         index,
                         this.data[column] as Array<T[string]>
