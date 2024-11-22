@@ -1,5 +1,11 @@
 # ts-csv-builder
 
+## 1.1.1
+
+### Patch Changes
+
+- 0186eee: Better handling of builder concatenation and setting column options.
+
 ## 1.1.0
 
 ### Minor Changes
