@@ -194,6 +194,35 @@ builder.concat(otherBuilder)
 This will mutate the builder which invokes the `.concat` method.
 Internal data, column options and builder options will be concatenated. In the case of options, if both builders define options for the same column or the same builder option, the options of the builder invoking `.concat` will take precedence.
 
+### Concatenating builders with different columns
+In case you are attempting to concatenate two builders with different columns set so far, each builder will create empty columns for any columns it is missing, that the other builder has. This means that the following scenario:
+
+```typescript
+type Template = {
+  id: number, 
+  animal: 'dog' | 'cat' | null, 
+  colour: 'blue' | 'green' | null,
+}
+
+const builder1 = new CSVBuilder<Template>()
+  .createColumn('id', [1, 2])
+  .createColumn('animal', ['dog', 'cat'])
+
+const builder2 = new CSVBuilder<Template>()
+  .createColumn('id', [3, 4])
+  .createColumn('colour', ['blue', 'green'])
+
+builder1.concat(builder2)
+```
+will result in the following CSV:
+
+| id | animal | colour |
+|----|--------| -------|
+| 1  | dog    | null   |
+| 2  | cat    | null   |
+| 3  | null   | blue   |
+| 4  | null   | green  |
+
 ## Merging multiple builders
 
 To merge more than 2 builders, it's handy to use the `CSVBuilder.merge` static method. This could especially be useful when the data required for the builders can only be obtained in smaller batches (for example, from a database or API), allowing us to asynchonously create multiple smaller builders and merge them.
